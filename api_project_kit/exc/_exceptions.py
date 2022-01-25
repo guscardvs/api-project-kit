@@ -12,7 +12,7 @@ class EnvironmentNotSet(Exception):
         self.key = key
 
     def __str__(self) -> str:
-        return f"The env key {{self.key}} is unset"
+        return 'The env key {self.key} is unset'
 
 
 class ApiError(Exception):
@@ -45,20 +45,19 @@ class RepositoryError(ApiError):
 
     @classmethod
     def from_obj(cls, obj: str = "Object"):
-        exc = cls(obj)
-        return exc
+        return cls(obj)
 
 
 class DoesNotExist(RepositoryError):
     status_code = HTTP_404_NOT_FOUND
 
     def get_message(self) -> str:
-        return f"{{self._object}} not found"
+        return '{self._object} not found'
 
 
 class AlreadyExists(RepositoryError):
     def get_message(self) -> str:
-        return f"{{self._object}} already exists"
+        return '{self._object} already exists'
 
 
 class UnexpectedError(ApiError):
