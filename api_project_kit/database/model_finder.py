@@ -15,8 +15,7 @@ def get_import(value: str):
 
 
 def get_relative_from(key: str):
-    result = key.rsplit(".", 1)[-1]
-    return result
+    return key.rsplit(".", 1)[-1]
 
 
 class _ModuleMapping(Generic[T]):
@@ -62,8 +61,7 @@ class _ModuleMapping(Generic[T]):
 
     def all_keys(self):
         for value in self.values():
-            for item in value.keys():
-                yield item
+            yield from value.keys()
 
 
 class ModelFinder(Generic[T]):
@@ -95,18 +93,17 @@ class ModelFinder(Generic[T]):
             if item.is_dir():
                 self.find_from_dir(item)
                 continue
-            if ".py" in path.name and "__init__.py" != path.name:
+            if ".py" in path.name and path.name != "__init__.py":
                 continue
             self.find_from_file(item)
 
     def _save_child_of(self, name: str, import_source: str, obj: Any):
-        if inspect.isclass(obj):
-            if (
-                issubclass(obj, self.child_of)
-                and name != self.child_of.__qualname__
-                and obj.__module__ == import_source
-            ):
-                self.mapping[name] = (import_source, obj)
+        if inspect.isclass(obj) and (
+            issubclass(obj, self.child_of)
+            and name != self.child_of.__qualname__
+            and obj.__module__ == import_source
+        ):
+            self.mapping[name] = (import_source, obj)
 
     def find_from_file(self, path: Optional[Path] = None):
         if path is None:
@@ -122,12 +119,11 @@ class ModelFinder(Generic[T]):
 
     def get_import(self, target: Path):
         target_str = target.as_posix()
-        result = (
+        return (
             target_str.replace(self.root.as_posix(), self.root.name)
             .replace("/", ".")
             .replace(".py", "")
         )
-        return result
 
     def preload_metadata(self, metadata: MetaData):
         self.find()
